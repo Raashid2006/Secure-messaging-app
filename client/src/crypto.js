@@ -98,7 +98,15 @@ export async function unwrapPrivateKeyWithPassword(stored, password) {
   );
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, base64ToBytes(stored.ct));
   const jwk = JSON.parse(bytesToUtf8(new Uint8Array(pt)));
-  return importPrivateJwk(jwk);
+  const privateKey = await importPrivateJwk(jwk);
+  const publicKey = await crypto.subtle.importKey(
+    'jwk',
+    { kty: 'EC', crv: 'P-256', x: jwk.x, y: jwk.y, ext: true },
+    ECDH,
+    true,
+    []
+  );
+  return { privateKey, publicKey };
 }
 
 export function saveWrappedKey(username, wrapped) {
@@ -106,7 +114,7 @@ export function saveWrappedKey(username, wrapped) {
 }
 
 export function loadWrappedKey(username) {
-  const raw = localStorage.getItem(`e2e:${username}`);
+  const raw = localStorage.getItem(`e2e:${username}`) || localStorage.getItem(`e2e:${username.toLowerCase()}`);
   return raw ? JSON.parse(raw) : null;
 }
 

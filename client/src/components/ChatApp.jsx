@@ -111,17 +111,6 @@ export default function ChatApp({ session, keyPair, myPub, onLogout }) {
   const activeRef = useRef(active);
   useEffect(() => { activeRef.current = active; }, [active]);
 
-  /* ---------------- socket wiring ---------------- */
-
-  const handleEventRef = useRef(handleEvent);
-  useEffect(() => { handleEventRef.current = handleEvent; }, [handleEvent]);
-
-  useEffect(() => {
-    socketRef.current = connectSocket((ev, data) => handleEventRef.current(ev, data));
-    return () => { socketRef.current?.disconnect(); socketRef.current = null; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleEvent = useCallback((ev, data) => {
     switch (ev) {
       case 'connect':
@@ -203,6 +192,17 @@ export default function ChatApp({ session, keyPair, myPub, onLogout }) {
         break;
     }
   }, [ingestMessage, refreshConversations, refreshUsers, refreshGroups, setMessagesForRoom, toast]);
+
+  /* ---------------- socket wiring ---------------- */
+
+  const handleEventRef = useRef(handleEvent);
+  useEffect(() => { handleEventRef.current = handleEvent; }, [handleEvent]);
+
+  useEffect(() => {
+    socketRef.current = connectSocket((ev, data) => handleEventRef.current(ev, data));
+    return () => { socketRef.current?.disconnect(); socketRef.current = null; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ---------------- initial load ---------------- */
 
