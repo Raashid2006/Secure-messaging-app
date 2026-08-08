@@ -75,7 +75,7 @@ export async function wrapPrivateKeyWithPassword(privateKey, password) {
     ['encrypt', 'decrypt']
   );
   const jwk = await exportPrivateJwk(privateKey);
-  const ct = await crypto.subtle.encrypt(AES_GCM, aesKey, utf8ToBytes(JSON.stringify(jwk)));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, utf8ToBytes(JSON.stringify(jwk)));
   return {
     salt: bytesToBase64(salt),
     iv: bytesToBase64(iv),
@@ -96,7 +96,7 @@ export async function unwrapPrivateKeyWithPassword(stored, password) {
     false,
     ['encrypt', 'decrypt']
   );
-  const pt = await crypto.subtle.decrypt(AES_GCM, aesKey, base64ToBytes(stored.ct));
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, aesKey, base64ToBytes(stored.ct));
   const jwk = JSON.parse(bytesToUtf8(new Uint8Array(pt)));
   return importPrivateJwk(jwk);
 }
