@@ -73,6 +73,13 @@ await Promise.all([
   new Promise((r) => carol.on('connect', r)),
 ]);
 
+/* --- user list exposes public keys (needed to encrypt DMs) --- */
+const usersList = await api('/users', { headers: { Authorization: `Bearer ${users[aliceUser].token}` } });
+const bobInList = usersList.users.find((u) => u.id === users[bobUser].id);
+check('User list includes pubKey for other users', !!bobInList && typeof bobInList.pubKey === 'string' && bobInList.pubKey.length >= 16);
+check('User list excludes plaintext passwords', Object.keys(bobInList).every((k) => !/pass/i.test(k)));
+
+
 /* --- DM E2E --- */
 const plaintext = 'hello bob, this is alice — password hunter2';
 const dmPayload = await encryptDm(plaintext, users[aliceUser].keyPair.privateKey, await importPublicKeyRaw(users[bobUser].pubKey));

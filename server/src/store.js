@@ -74,8 +74,8 @@ export function updateUser(id, patch) {
 
 export function listUsers() {
   return Object.values(db.users)
-    .map(({ id, username, avatar, statusMessage, createdAt }) => ({
-      id, username, avatar, statusMessage, createdAt,
+    .map(({ id, username, avatar, statusMessage, createdAt, pubKey }) => ({
+      id, username, avatar, statusMessage, createdAt, pubKey,
     }))
     .sort((a, b) => a.username.localeCompare(b.username));
 }
