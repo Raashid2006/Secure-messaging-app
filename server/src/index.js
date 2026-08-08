@@ -33,6 +33,13 @@ if (existsSync(CLIENT_DIST)) {
     if (req.path.startsWith('/api')) return next();
     res.sendFile(join(CLIENT_DIST, 'index.html'));
   });
+} else {
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.status(404).send(
+      'Client build not found. Run "npm run build" from the project root, then restart this server.'
+    );
+  });
 }
 
 setupSocket(io);
